@@ -37,6 +37,7 @@
   "scripts": {
     "autobuild": "rollup -c -w",
     "build": "rollup -c",
+    "prepare": "npm run build",
     "dev": "karma start --auto-watch --no-single-run --browsers chrome --grep",
     "dev:ff": "karma start --auto-watch --no-single-run --browsers firefox --grep",
     "docs": "npm run build && vuepress build docs --no-cache",
