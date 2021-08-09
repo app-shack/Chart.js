@@ -323,7 +323,31 @@ export class Legend extends Element {
 
       ctx.setLineDash(valueOrDefault(legendItem.lineDash, []));
 
-      if (labelOpts.usePointStyle) {
+      if (labelOpts.useLineStyle && lineWidth) {
+        let minSize = labelOpts.boxWidth > fontSize ? fontSize : labelOpts.boxWidth;
+        let radius = minSize * Math.SQRT2 / 3;
+        if (legendItem.pointStyle === 'circle') {
+          radius = minSize * Math.SQRT2 / 4
+        }
+        if (legendItem.borderDash) {
+          ctx.setLineDash(legendItem.borderDash);
+        }
+        ctx.beginPath();
+        ctx.moveTo(x, y + fontSize / 2);
+        ctx.lineTo(x + boxWidth, y + fontSize / 2);
+        ctx.stroke();
+        let centerX = rtlHelper.xPlus(x, boxWidth / 2);
+        let centerY = y + fontSize / 2;
+
+        const drawOptions = {
+          radius: radius,
+          pointStyle: legendItem.pointStyle,
+          rotation: legendItem.rotation,
+          borderWidth: lineWidth
+        };
+        // Draw pointStyle as legend symbol
+        drawPoint(ctx, drawOptions, centerX, centerY);
+      } else if (labelOpts.usePointStyle) {
         // Recalculate x and y for drawPoint() because its expecting
         // x and y to be center of figure (instead of top left)
         const drawOptions = {
@@ -649,7 +673,8 @@ export default {
       // lineWidth :
       generateLabels(chart) {
         const datasets = chart.data.datasets;
-        const {labels: {usePointStyle, pointStyle, textAlign, color}} = chart.legend.options;
+        let {labels: {usePointStyle, pointStyle, textAlign, color}} = chart.legend.options;
+        usePointStyle = usePointStyle || chart.legend.options.labels.useLineStyle;
 
         return chart._getSortedDatasetMetas().map((meta) => {
           const style = meta.controller.getStyle(usePointStyle ? 0 : undefined);

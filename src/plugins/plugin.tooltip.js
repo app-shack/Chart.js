@@ -678,6 +678,7 @@ export class Tooltip extends Element {
 	 */
   _drawColorBox(ctx, pt, i, rtlHelper, options) {
     const me = this;
+    const {body} = me;
     const labelColors = me.labelColors[i];
     const labelPointStyle = me.labelPointStyles[i];
     const {boxHeight, boxWidth} = options;
@@ -686,8 +687,39 @@ export class Tooltip extends Element {
     const rtlColorX = rtlHelper.x(colorX);
     const yOffSet = boxHeight < bodyFont.lineHeight ? (bodyFont.lineHeight - boxHeight) / 2 : 0;
     const colorY = pt.y + yOffSet;
+    const legendItem = this._chart.legend.legendItems.find((lI) => {
+      return this.dataPoints[i].datasetIndex === lI.datasetIndex;
+    })
+    const legendOptions = this._chart.legend.options
+    const datasetItem = this.dataPoints[i].dataset;
 
-    if (options.usePointStyle) {
+    if (datasetItem.type === "line" && legendOptions.labels.useLineStyle) {
+      let minSize = boxWidth > bodyFont.size ? bodyFont.size : boxWidth;
+      let radius = minSize * Math.SQRT2 / 3;
+      if (labelPointStyle.pointStyle === 'circle') {
+        radius = minSize * Math.SQRT2 / 4;
+      }
+      ctx.strokeStyle = labelColors.borderColor;
+      ctx.fillStyle = labelColors.backgroundColor;
+      if (legendItem.lineDash) {
+        ctx.setLineDash(legendItem.lineDash);
+      }
+      ctx.beginPath();
+      ctx.moveTo(pt.x, pt.y + bodyFont.size / 2);
+      ctx.lineTo(pt.x + boxWidth, pt.y + bodyFont.size / 2);
+      ctx.stroke();
+      let centerX = rtlHelper.xPlus(pt.x, boxWidth / 2);
+      let centerY = pt.y + bodyFont.size / 2;
+
+      const drawOptions = {
+        radius: radius,
+        pointStyle: labelPointStyle.pointStyle,
+        rotation: labelPointStyle.rotation,
+        borderWidth: 1
+      };
+      // Draw pointStyle as legend symbol
+      drawPoint(ctx, drawOptions, centerX, centerY);
+    } else if (options.usePointStyle) {
       const drawOptions = {
         radius: Math.min(boxWidth, boxHeight) / 2, // fit the circle in the box
         pointStyle: labelPointStyle.pointStyle,
@@ -801,7 +833,8 @@ export class Tooltip extends Element {
 
       lines = bodyItem.lines;
       // Draw Legend-like boxes if needed
-      if (displayColors && lines.length) {
+      if (displayColors) {
+        xLinePadding = boxWidth + 4;
         me._drawColorBox(ctx, pt, i, rtlHelper, options);
         bodyLineHeight = Math.max(bodyFont.lineHeight, boxHeight);
       }

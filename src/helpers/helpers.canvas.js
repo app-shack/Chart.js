@@ -146,6 +146,7 @@ export function drawPoint(ctx, options, x, y) {
   }
 
   ctx.beginPath();
+  ctx.setLineDash([]);
 
   switch (style) {
   // Default includes circle
