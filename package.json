@@ -19,10 +19,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/chartjs/Chart.js.git"
+    "url": "https://github.com/app-shack/Chart.js.git"
   },
   "bugs": {
-    "url": "https://github.com/chartjs/Chart.js/issues"
+    "url": "https://github.com/app-shack/Chart.js/issues"
   },
   "files": [
     "auto/**/*.js",
